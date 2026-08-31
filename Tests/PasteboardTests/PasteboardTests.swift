@@ -151,4 +151,13 @@ final class PasteboardTests: XCTestCase {
                      perRoundTrip, imageMs, (imageClip.image?.bytes ?? 0) / 1024))
         XCTAssertLessThan(perRoundTrip, 50)
     }
+
+    /// The kind order is a contract: most specific first, `.other` only
+    /// when nothing readable remains, empty stays empty.
+    func testKindOrderingIsMostSpecificFirst() {
+        XCTAssertEqual(KindOrdering.kinds(hasFiles: true, hasImage: true, hasText: true, hasRich: true, hasColor: false, hasOtherTypes: true),
+                       [.files, .image, .text, .richText])
+        XCTAssertEqual(KindOrdering.kinds(hasFiles: false, hasImage: false, hasText: false, hasRich: false, hasColor: false, hasOtherTypes: true), [.other])
+        XCTAssertTrue(KindOrdering.kinds(hasFiles: false, hasImage: false, hasText: false, hasRich: false, hasColor: false, hasOtherTypes: false).isEmpty)
+    }
 }

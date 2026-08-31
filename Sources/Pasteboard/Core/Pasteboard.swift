@@ -14,18 +14,6 @@
 import AppKit
 import Foundation
 
-/// What can go wrong writing to the pasteboard.
-public enum PasteboardError: Error, CustomStringConvertible, Sendable {
-    /// The data offered as an image is not one AppKit can decode.
-    case notAnImage
-    /// The message for people.
-    public var description: String {
-        switch self {
-        case .notAnImage: return "the data is not an image AppKit can decode"
-        }
-    }
-}
-
 /// The general pasteboard, as reads and writes of ``Clip`` values.
 public enum Pasteboard {
 
@@ -63,15 +51,9 @@ public enum Pasteboard {
                               alpha: Double(srgb.alphaComponent))
         }
 
-        // Most specific first: copied files also put up an icon and a path
-        // string, and an image often carries a text fallback.
-        var kinds: [Clip.Kind] = []
-        if !files.isEmpty { kinds.append(.files) }
-        if image != nil { kinds.append(.image) }
-        if text != nil { kinds.append(.text) }
-        if html != nil || hasRTF { kinds.append(.richText) }
-        if color != nil { kinds.append(.color) }
-        if kinds.isEmpty && !types.isEmpty { kinds.append(.other) }
+        let kinds = KindOrdering.kinds(hasFiles: !files.isEmpty, hasImage: image != nil,
+                                       hasText: text != nil, hasRich: html != nil || hasRTF,
+                                       hasColor: color != nil, hasOtherTypes: !types.isEmpty)
 
         return Clip(kinds: kinds, text: text, hasHTML: html != nil, hasRTF: hasRTF, html: html,
                     image: image, files: files.map(\.path), color: color, types: types,
