@@ -56,22 +56,6 @@ public struct Clip: Codable, Sendable, Equatable {
     /// The files as URLs.
     public var fileURLs: [URL] { files.map { URL(fileURLWithPath: $0) } }
 
-    /// The text as a URL, when it is one link and nothing else — one token
-    /// with a scheme a person means as a link.
-    public var url: URL? {
-        guard let trimmed = text?.trimmingCharacters(in: .whitespacesAndNewlines),
-              !trimmed.isEmpty,
-              !trimmed.contains(where: \.isWhitespace),
-              let url = URL(string: trimmed),
-              let scheme = url.scheme?.lowercased(),
-              ["http", "https", "file", "mailto", "ftp"].contains(scheme)
-        else { return nil }
-        return url
-    }
-
-    /// Whether ``url`` would give a link.
-    public var looksLikeURL: Bool { url != nil }
-
     /// A clip assembled field by field — reads come from
     /// ``Pasteboard/read()``; this is for tests and previews.
     public init(kinds: [Kind], text: String? = nil, hasHTML: Bool = false, hasRTF: Bool = false,

@@ -160,4 +160,14 @@ final class PasteboardTests: XCTestCase {
         XCTAssertEqual(KindOrdering.kinds(hasFiles: false, hasImage: false, hasText: false, hasRich: false, hasColor: false, hasOtherTypes: true), [.other])
         XCTAssertTrue(KindOrdering.kinds(hasFiles: false, hasImage: false, hasText: false, hasRich: false, hasColor: false, hasOtherTypes: false).isEmpty)
     }
+
+    func testURLDetectionRuleAlone() {
+        // The narrowness pinned without a pasteboard in sight.
+        XCTAssertEqual(URLDetection.url(from: "  https://example.com/a?b=1  ")?.host, "example.com")
+        XCTAssertNil(URLDetection.url(from: "visit https://example.com now"))
+        XCTAssertNil(URLDetection.url(from: "example.com"))
+        XCTAssertNil(URLDetection.url(from: "javascript:alert(1)"))
+        XCTAssertNil(URLDetection.url(from: nil))
+        XCTAssertNotNil(URLDetection.url(from: "MAILTO:a@b.c"))
+    }
 }
